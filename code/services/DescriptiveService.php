@@ -5,59 +5,59 @@
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
-class DescriptiveService {
+class DescriptiveService
+{
 
-	/**
-	 *	Apply all descriptive required extensions.
-	 */
+    /**
+     *	Apply all descriptive required extensions.
+     */
 
-	public static function apply_requirements() {
+    public static function apply_requirements()
+    {
+        LeftAndMain::require_javascript(DESCRIPTIVE_PATH . '/javascript/descriptive.js');
+        LeftAndMain::require_css(DESCRIPTIVE_PATH . '/css/descriptive.css');
+    }
 
-		LeftAndMain::require_javascript(DESCRIPTIVE_PATH . '/javascript/descriptive.js');
-		LeftAndMain::require_css(DESCRIPTIVE_PATH . '/css/descriptive.css');
-	}
+    /**
+     *	Apply custom styles to the absolute description element.
+     *
+     *	@parameter <{DESCRIPTION_CSS}> array(string)
+     */
 
-	/**
-	 *	Apply custom styles to the absolute description element.
-	 *
-	 *	@parameter <{DESCRIPTION_CSS}> array(string)
-	 */
+    public static function customise_css($styles)
+    {
+        if (is_array($styles)) {
 
-	public static function customise_css($styles) {
+            // Determine the path to write against.
 
-		if(is_array($styles)) {
+            $URL = DESCRIPTIVE_PATH . '/css/custom.css';
+            $path = Director::baseFolder() . "/{$URL}";
 
-			// Determine the path to write against.
+            // Collate each custom style where appropriate.
 
-			$URL = DESCRIPTIVE_PATH . '/css/custom.css';
-			$path = Director::baseFolder() . "/{$URL}";
+            $CSS = '#cms-menu-descriptive {' . PHP_EOL;
+            foreach ($styles as $style => $value) {
+                if (!is_numeric($style)) {
+                    $CSS .= "\t{$style}: {$value} !important;" . PHP_EOL;
 
-			// Collate each custom style where appropriate.
+                    // Apply any possible background change.
 
-			$CSS = '#cms-menu-descriptive {' . PHP_EOL;
-			foreach($styles as $style => $value) {
-				if(!is_numeric($style)) {
-					$CSS .= "\t{$style}: {$value} !important;" . PHP_EOL;
+                    if (strtolower($style) === 'background') {
+                        $background = '#cms-menu-descriptive:before,' . PHP_EOL . '#cms-menu-descriptive:after {' . PHP_EOL;
+                        $background .= "\tborder-top: 10px solid {$value} !important;" . PHP_EOL . '}' . PHP_EOL . PHP_EOL;
+                        $background .= '#cms-menu-descriptive:before {' . PHP_EOL;
+                        $background .= "\tborder-top: 13px solid !important;" . PHP_EOL;
+                        $background .= "\tborder-top-color: inherit !important;" . PHP_EOL . '}' . PHP_EOL;
+                    }
+                }
+            }
+            $CSS .= '}' . PHP_EOL . PHP_EOL . $background;
 
-					// Apply any possible background change.
+            // Write the custom styles.
 
-					if(strtolower($style) === 'background') {
-						$background = '#cms-menu-descriptive:before,' . PHP_EOL . '#cms-menu-descriptive:after {' . PHP_EOL;
-						$background .= "\tborder-top: 10px solid {$value} !important;" . PHP_EOL . '}' . PHP_EOL . PHP_EOL;
-						$background .= '#cms-menu-descriptive:before {' . PHP_EOL;
-						$background .= "\tborder-top: 13px solid !important;" . PHP_EOL;
-						$background .= "\tborder-top-color: inherit !important;" . PHP_EOL . '}' . PHP_EOL;
-					}
-				}
-			}
-			$CSS .= '}' . PHP_EOL . PHP_EOL . $background;
-
-			// Write the custom styles.
-
-			file_put_contents($path, $CSS);
-			chmod($path, 0664);
-			LeftAndMain::require_css($URL);
-		}
-	}
-
+            file_put_contents($path, $CSS);
+            chmod($path, 0664);
+            LeftAndMain::require_css($URL);
+        }
+    }
 }
