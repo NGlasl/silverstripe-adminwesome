@@ -5,26 +5,26 @@
  *	@author Nathan Glasl <nathan@silverstripe.com.au>
  */
 
-class LeftAndMainDescriptionExtension extends Extension {
+class LeftAndMainDescriptionExtension extends Extension
+{
 
-	/**
-	 *	Add the model admin description against each CMS menu tab.
-	 */
+    /**
+     *	Add the model admin description against each CMS menu tab.
+     */
 
-	public function getUpdatedMainMenu() {
+    public function getUpdatedMainMenu()
+    {
+        $tabs = $this->owner->MainMenu();
+        foreach ($tabs as $tab) {
+            $class = $tab->MenuItem->controller;
+            if (class_exists($class) && is_subclass_of($class, 'ModelAdmin')) {
+                $tab->setField('Description', Config::inst()->get($class, 'menu_description'));
+            }
+        }
 
-		$tabs = $this->owner->MainMenu();
-		foreach($tabs as $tab) {
-			$class = $tab->MenuItem->controller;
-			if(class_exists($class) && is_subclass_of($class, 'ModelAdmin')) {
-				$tab->setField('Description', Config::inst()->get($class, 'menu_description'));
-			}
-		}
+        // Allow extension customisation.
 
-		// Allow extension customisation.
-
-		$this->owner->extend('updateMainMenu', $tabs);
-		return $tabs;
-	}
-
+        $this->owner->extend('updateMainMenu', $tabs);
+        return $tabs;
+    }
 }
